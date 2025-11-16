@@ -28,7 +28,6 @@ int (*builtin_func[]) (char **) = {
 
 void die(char* s) {
     perror(s);
-    exit(EXIT_FAILURE);
 }
 char* lsh_read_line() {
     int bufsize = BUFFER_SIZE;
@@ -60,6 +59,32 @@ char* lsh_read_line() {
 }
 
 
+int lsh_cd(char** args) {
+    if(args[1]==NULL) { // we know the array is going to be null terminated
+        die("Directory name not given");
+    }
+    else {
+        if(chdir(args[1])!=0) die("Error changing directory");
+    }
+    return 1;
+}
+
+int lsh_help(char** args) {
+    int i;
+    printf("Ansh's shell\n");
+    printf("Type program names and args, and hit enter\n");
+    printf("Following are the built in programs");
+    for(i = 0; i<lsh_num_builtins(); i++) {
+        printf("%s\n",functions_arr[i]);
+    }
+    printf("Use the man command for information on other programs");
+    return 1;
+}
+
+int lsh_exit(char** args) {
+    return 0;
+}
+
 char** lsh_split_line(char* line) {
     int bufsize = LSH_TOK_BUFSIZE;  // represents total number of args.
     int pos = 0;
@@ -82,7 +107,7 @@ char** lsh_split_line(char* line) {
         }
         token = strtok(NULL,LSH_TOK_DELIM);
     }
-    token[pos] = NULL;
+    tokens[pos] = NULL;
     return tokens;
 }
 
@@ -105,7 +130,16 @@ int lsh_launch(char** args) {
     }
     return 1;
 }
-
+int lsh_execute(char** args) {
+   int i;
+   if(args[0] == NULL) {
+    return 1;
+   }
+   for(int i = 0; i < lsh_num_builtins();i++) {
+        if(strcmp(args[0],functions_arr[i])==0) return (*builtin_func[i])(args);
+   }
+   return lsh_launch(args);
+}
 void lsh_loop(void) {
 
     char *line;
@@ -121,12 +155,6 @@ void lsh_loop(void) {
         free(args);
     } while(status);
 }
-
-
-
-
-
-
 
 int main(int argc, char* argv[]) {
 
