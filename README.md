@@ -1,6 +1,6 @@
 # myownshell
 
-I built a tiny,Unix-like shell written in C.
+I built a tiny, Unix-like shell written in C.
 
 This repository contains a simple shell implementation intended for learning and experimentation.
 
